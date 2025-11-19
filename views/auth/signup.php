@@ -43,8 +43,8 @@ if ($stage === 'form' && isset($_POST['signup_submit'])) {
         addAlert($alerts, 'danger', 'Full name must contain only letters and spaces.');
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         addAlert($alerts, 'danger', 'Please enter a valid email address.');
-    } elseif (strlen($password) < ($conf['min_password_length'] ?? 8)) {
-        addAlert($alerts, 'danger', 'Password must be at least ' . ($conf['min_password_length'] ?? 8) . ' characters long.');
+    } elseif (strlen($password) < ($conf['min_password_length'] ?? 4)) {
+        addAlert($alerts, 'danger', 'Password must be at least ' . ($conf['min_password_length'] ?? 4) . ' characters long.');
     } else {
         $email_domain = substr(strrchr($email, "@"), 1);
         if (!in_array($email_domain, $conf['valid_email_domain'])) {

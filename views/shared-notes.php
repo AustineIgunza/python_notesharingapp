@@ -3,26 +3,27 @@
  * Enhanced Shared Notes Page - Beautiful Gallery for Community Content
  */
 
+// Add cache control headers to ensure fresh data
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
+
 session_start();
 
 // Check if user is logged in
-// Load config and services
+if (!isset($_SESSION['user_id'])) {
+    header('Location: auth/signin.php');
+    exit();
+}
+
 require_once '../config/conf.php';
 require_once '../app/Services/Global/Database.php';
 require_once '../app/Services/Global/fncs.php';
-require_once __DIR__ . '/../app/Services/Global/StubData.php';
+require_once '../app/Controllers/FavoritesController.php';
 
 $ObjFncs = new fncs();
 $db = new Database($conf);
-$stubProvider = new StubData();
-
-// If DB is stubbed, ensure demo user in session for UI testing
-if ($db->isStubMode() && !isset($_SESSION['user_id'])) {
-    $u = $stubProvider->getSampleUser();
-    $_SESSION['user_id'] = $u['id'];
-    $_SESSION['user_name'] = $u['full_name'];
-    $_SESSION['user_email'] = $u['email'];
-}
+$favoritesController = new FavoritesController($db);
 
 // Get current user info
 $user_id = $_SESSION['user_id'];
@@ -71,35 +72,25 @@ switch ($sort_by) {
 
 // Get notes with user information
 try {
-    if ($db->isStubMode()) {
-        $notes = $stubProvider->getPublicNotes();
-        $stats = [
-            'total_notes' => count($notes),
-            'text_notes' => count(array_filter($notes, function($n){ return ($n['note_type'] ?? '') === 'text'; })),
-            'file_notes' => count(array_filter($notes, function($n){ return ($n['note_type'] ?? '') === 'file'; })),
-            'total_users' => 1
-        ];
-    } else {
-        $sql = "SELECT notes.*, users.full_name, users.email,
-                       CASE 
-                           WHEN notes.note_type = 'file' THEN notes.content
-                           ELSE SUBSTRING(notes.content, 1, 200)
-                       END as preview
-                FROM notes 
-                LEFT JOIN users ON notes.user_id = users.id 
-                WHERE $where_sql 
-                $order_sql";
-        
-        $notes = $db->fetchAll($sql, $params);
-        
-        // Get statistics
-        $stats = [
-            'total_notes' => $db->fetchOne("SELECT COUNT(*) as count FROM notes WHERE is_public = ?", [1])['count'],
-            'text_notes' => $db->fetchOne("SELECT COUNT(*) as count FROM notes WHERE is_public = ? AND note_type = ?", [1, 'text'])['count'],
-            'file_notes' => $db->fetchOne("SELECT COUNT(*) as count FROM notes WHERE is_public = ? AND note_type = ?", [1, 'file'])['count'],
-            'total_users' => $db->fetchOne("SELECT COUNT(DISTINCT user_id) as count FROM notes WHERE is_public = ?", [1])['count']
-        ];
-    }
+    $sql = "SELECT notes.*, users.full_name, users.email,
+                   CASE 
+                       WHEN notes.note_type = 'file' THEN notes.content
+                       ELSE SUBSTRING(notes.content, 1, 200)
+                   END as preview
+            FROM notes 
+            LEFT JOIN users ON notes.user_id = users.id 
+            WHERE $where_sql 
+            $order_sql";
+    
+    $notes = $db->fetchAll($sql, $params);
+    
+    // Get statistics
+    $stats = [
+        'total_notes' => $db->fetchOne("SELECT COUNT(*) as count FROM notes WHERE is_public = ?", [1])['count'],
+        'text_notes' => $db->fetchOne("SELECT COUNT(*) as count FROM notes WHERE is_public = ? AND note_type = ?", [1, 'text'])['count'],
+        'file_notes' => $db->fetchOne("SELECT COUNT(*) as count FROM notes WHERE is_public = ? AND note_type = ?", [1, 'file'])['count'],
+        'total_users' => $db->fetchOne("SELECT COUNT(DISTINCT user_id) as count FROM notes WHERE is_public = ?", [1])['count']
+    ];
     
 } catch (Exception $e) {
     error_log("Error fetching shared notes: " . $e->getMessage());
@@ -196,6 +187,34 @@ $error_msg = $ObjFncs->getMsg('errors');
         .note-type-file {
             background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
             color: white;
+        }
+        
+        .favorite-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            z-index: 2;
+            color: #ccc;
+        }
+        
+        .favorite-btn.favorited {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .favorite-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         
         .file-icon {
@@ -345,6 +364,11 @@ $error_msg = $ObjFncs->getMsg('errors');
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="favorites.php">
+                            <i class="bi bi-heart me-1"></i>Favorites
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="notes/create.php">
                             <i class="bi bi-plus-circle me-1"></i>Create Note
                         </a>
@@ -369,6 +393,14 @@ $error_msg = $ObjFncs->getMsg('errors');
     </nav>
 
     <div class="container my-4">
+        
+        <!-- Success Messages -->
+        <?php if (isset($_GET['message']) && $_GET['message'] === 'note_updated'): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle me-2"></i>Note updated successfully! Changes are now visible to everyone.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
         
         <!-- Hero Section -->
         <div class="hero-section">
@@ -457,8 +489,16 @@ $error_msg = $ObjFncs->getMsg('errors');
         <?php else: ?>
             <div class="row">
                 <?php foreach ($notes as $note): ?>
+                    <?php $is_favorited = $favoritesController->isFavorited($user_id, $note['id']); ?>
                     <div class="col-lg-4 col-md-6 mb-4">
                         <div class="card note-card h-100 position-relative">
+                            <!-- Favorite Button -->
+                            <button class="favorite-btn <?php echo $is_favorited ? 'favorited' : ''; ?>" 
+                                    onclick="toggleFavorite(<?php echo $note['id']; ?>, this)" 
+                                    title="<?php echo $is_favorited ? 'Remove from favorites' : 'Add to favorites'; ?>">
+                                <i class="bi bi-heart<?php echo $is_favorited ? '-fill' : ''; ?>"></i>
+                            </button>
+                            
                             <!-- Note Type Badge -->
                             <span class="note-type-badge note-type-<?php echo $note['note_type']; ?>">
                                 <?php if ($note['note_type'] === 'file'): ?>
@@ -635,6 +675,71 @@ $error_msg = $ObjFncs->getMsg('errors');
         // Helper function to escape special characters in regex
         function escapeRegex(string) {
             return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+        
+        // Toggle favorite function
+        function toggleFavorite(noteId, button) {
+            fetch('../app/Controllers/FavoritesController.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=toggle_favorite&note_id=${noteId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update button appearance
+                    const icon = button.querySelector('i');
+                    if (button.classList.contains('favorited')) {
+                        // Remove from favorites
+                        button.classList.remove('favorited');
+                        icon.classList.remove('bi-heart-fill');
+                        icon.classList.add('bi-heart');
+                        button.title = 'Add to favorites';
+                    } else {
+                        // Add to favorites
+                        button.classList.add('favorited');
+                        icon.classList.remove('bi-heart');
+                        icon.classList.add('bi-heart-fill');
+                        button.title = 'Remove from favorites';
+                    }
+                    
+                    // Show success message
+                    showToast(data.message, 'success');
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred. Please try again.', 'error');
+            });
+        }
+        
+        // Toast notification function
+        function showToast(message, type) {
+            // Create toast element
+            const toastHtml = `
+                <div class="toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', toastHtml);
+            const toastElement = document.querySelector('.toast:last-child');
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+            
+            // Remove toast element after it's hidden
+            toastElement.addEventListener('hidden.bs.toast', () => {
+                toastElement.remove();
+            });
         }
     </script>
 </body>

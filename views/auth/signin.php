@@ -16,14 +16,6 @@ $ObjSendMail = new SendMail();
 $ObjAuth = new auth();
 $db = new Database($conf);
 
-// Stub data provider for no-db mode
-require_once __DIR__ . '/../../app/Services/Global/StubData.php';
-$stubProvider = new StubData();
-
-// Debug logging for signin.php
-$debug_log = __DIR__ . '/../../debug.log';
-error_log("DEBUG: signin.php accessed - Method: " . ($_SERVER['REQUEST_METHOD'] ?? 'NOT SET') . " - " . date('Y-m-d H:i:s'), 3, $debug_log);
-
 // Redirect to dashboard if already logged in (but not from auto-login)
 if (isset($_SESSION['user_id']) && !isset($_SESSION['auto_login'])) {
     header('Location: ../dashboard.php');
@@ -32,30 +24,10 @@ if (isset($_SESSION['user_id']) && !isset($_SESSION['auto_login'])) {
 
 // CRITICAL: Process login BEFORE any HTML output
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signin'])) {
-    error_log("DEBUG: About to call login function from signin.php", 3, $debug_log);
-    
-    if (!empty($_POST)) {
-        error_log("DEBUG: POST data in signin.php: " . print_r($_POST, true), 3, $debug_log);
-    }
-
-    // If running in stub/no-db mode, accept the credentials and create a demo session
-    if ($db->isStubMode()) {
-        $u = $stubProvider->getSampleUser();
-        $_SESSION['user_id'] = $u['id'];
-        $_SESSION['user_name'] = $u['full_name'];
-        $_SESSION['user_email'] = $u['email'];
-        // Redirect to dashboard
-        header('Location: ../dashboard.php');
-        exit();
-    }
-
     require_once '../../config/ClassAutoLoad.php';
     // This will redirect to two_factor_auth.php if successful
     $ObjAuth->login($conf, $ObjFncs, $ObjSendMail);
-    error_log("DEBUG: Returned from login function (should not see this if redirect works)", 3, $debug_log);
     // If we're still here, login failed - errors are in session
-} else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    error_log("DEBUG: POST request received but signin parameter missing: " . print_r(array_keys($_POST), true), 3, $debug_log);
 }
 
 // Load classes for displaying messages
@@ -555,20 +527,13 @@ $msg = $ObjFncs->getMsg('msg') ?: '';
                                     </div>
                                 </div>
                                 
-                                <!-- Remember Me and Forgot Password Row -->
-                                <div class="row align-items-center mb-4">
-                                    <div class="col-md-6">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="remember" name="remember_me" value="1" style="transform: scale(1.1);">
-                                            <label class="form-check-label text-muted" for="remember">
-                                                Remember me for 30 days
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 text-md-end">
-                                        <a href="forgot_password.php" class="text-decoration-none text-primary fw-semibold">
-                                            <i class="bi bi-question-circle me-1"></i>Forgot Password?
-                                        </a>
+                                <!-- Remember Me Row -->
+                                <div class="mb-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="remember" name="remember_me" value="1" style="transform: scale(1.1);">
+                                        <label class="form-check-label text-muted" for="remember">
+                                            Remember me for 30 days
+                                        </label>
                                     </div>
                                 </div>
                                 
@@ -585,23 +550,7 @@ $msg = $ObjFncs->getMsg('msg') ?: '';
                                     </button>
                                 </div>
                                 
-                                <!-- Demo Credentials Card -->
-                                <div class="card border-0 bg-light mb-3">
-                                    <div class="card-body py-2 px-3">
-                                        <div class="row align-items-center">
-                                            <div class="col">
-                                                <small class="text-muted">
-                                                    <i class="bi bi-info-circle me-1"></i>Try demo credentials
-                                                </small>
-                                            </div>
-                                            <div class="col-auto">
-                                                <button type="button" class="btn btn-outline-primary btn-sm" id="demoBtn">
-                                                    <i class="bi bi-person-gear me-1"></i>Use Demo
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+
                             </form>
                             
                             <div class="signup-link">
@@ -674,7 +623,7 @@ $msg = $ObjFncs->getMsg('msg') ?: '';
             const password = this.value;
             
             if (password.length > 0) {
-                if (password.length >= 6) {
+                if (password.length >= 4) {
                     this.classList.remove('is-invalid');
                     this.classList.add('is-valid');
                 } else {
@@ -686,29 +635,7 @@ $msg = $ObjFncs->getMsg('msg') ?: '';
             }
         });
         
-        // Demo credentials functionality
-        document.getElementById('demoBtn').addEventListener('click', function() {
-            const emailInput = document.getElementById('email');
-            const passwordInput = document.getElementById('password');
-            
-            emailInput.value = 'demo@noteshareacademy.com';
-            passwordInput.value = 'demo123';
-            
-            // Trigger validation
-            emailInput.dispatchEvent(new Event('input'));
-            passwordInput.dispatchEvent(new Event('input'));
-            
-            // Add animation feedback
-            this.innerHTML = '<i class="bi bi-check-circle me-1"></i>Applied!';
-            this.classList.remove('btn-outline-primary');
-            this.classList.add('btn-success');
-            
-            setTimeout(() => {
-                this.innerHTML = '<i class="bi bi-person-gear me-1"></i>Use Demo';
-                this.classList.remove('btn-success');
-                this.classList.add('btn-outline-primary');
-            }, 2000);
-        });
+
         
         // Loading state for form submission
         function showLoadingState() {
@@ -753,11 +680,7 @@ $msg = $ObjFncs->getMsg('msg') ?: '';
                 document.querySelector('form').dispatchEvent(new Event('submit'));
             }
             
-            // Alt + D for demo credentials
-            if (e.altKey && e.key === 'd') {
-                e.preventDefault();
-                document.getElementById('demoBtn').click();
-            }
+
         });
     </script>
 </body>
