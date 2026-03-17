@@ -39,6 +39,31 @@ $user_name = $_SESSION['user_name'] ?? 'User';
 $user_email = $_SESSION['user_email'] ?? '';
 $user_id = $_SESSION['user_id'];
 
+// Check if user is admin with fallback
+$is_admin = false;
+if (!$db->isStubMode()) {
+    try {
+        $admin_check = $db->fetchOne("SELECT is_admin FROM users WHERE id = ?", [$user_id]);
+        $is_admin = $admin_check && $admin_check['is_admin'] == 1;
+    } catch (Exception $e) {
+        // Fallback: Direct PDO connection for admin check
+        error_log("Dashboard admin check fallback used: " . $e->getMessage());
+        try {
+            $pdo = new PDO("mysql:host=127.0.0.1;dbname=notessharingapp;charset=utf8mb4", "root", "root", [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            ]);
+            $stmt = $pdo->prepare("SELECT is_admin FROM users WHERE id = ?");
+            $stmt->execute([$user_id]);
+            $admin_check = $stmt->fetch();
+            $is_admin = $admin_check && $admin_check['is_admin'] == 1;
+        } catch (Exception $fallback_error) {
+            error_log("Dashboard admin check fallback also failed: " . $fallback_error->getMessage());
+            $is_admin = false; // Default to non-admin if all fails
+        }
+    }
+}
+
 // Handle search functionality
 $search = $_GET['search'] ?? '';
 
@@ -351,6 +376,9 @@ if (isset($_GET['error'])) {
                     <?php if ($is_logged_in): ?>
                         <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
                         <li><a class="dropdown-item" href="auth/settings.php"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                        <?php if ($is_admin): ?>
+                            <li><a class="dropdown-item text-warning" href="admin/dashboard.php"><i class="bi bi-shield-lock me-2"></i>Admin Panel</a></li>
+                        <?php endif; ?>
                         <li><a class="dropdown-item" href="#"><i class="bi bi-shield-check me-2"></i>Security (2FA)</a></li>
                         <li><a class="dropdown-item" href="#"><i class="bi bi-question-circle me-2"></i>Help</a></li>
                         <li><hr class="dropdown-divider"></li>
@@ -397,6 +425,13 @@ if (isset($_GET['error'])) {
                                 <i class="bi bi-gear me-2"></i>Settings
                             </button>
                         </li>
+                        <?php if ($is_admin): ?>
+                        <li class="nav-item">
+                            <a href="admin/dashboard.php" class="nav-link w-100 text-start border-0 text-warning text-decoration-none" style="background: none;">
+                                <i class="bi bi-shield-lock me-2"></i>Admin Panel
+                            </a>
+                        </li>
+                        <?php endif; ?>
                         
                         
                     </ul>

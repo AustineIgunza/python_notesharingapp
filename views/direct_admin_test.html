@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Direct Admin Login Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; padding: 20px; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .info { background: #e7f3ff; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h2>🔐 Direct Admin Login Test</h2>
+    
+    <div class="info">
+        <strong>Testing admin login with:</strong><br>
+        Email: admin12@gmail.com<br>
+        Password: admin12<br>
+        Mode: Admin (direct, no 2FA)
+    </div>
+    
+    <form method="POST" action="auth/signin.php">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" name="email" id="email" value="admin12@gmail.com" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" value="admin12" required>
+        </div>
+        
+        <input type="hidden" name="admin_login" value="1">
+        <input type="hidden" name="signin" value="1">
+        
+        <div class="form-group">
+            <button type="submit">🚀 Login as Admin (Direct)</button>
+        </div>
+    </form>
+    
+    <hr>
+    <p><a href="auth/signin.php">← Back to Regular Signin Page</a></p>
+    
+    <div class="info">
+        <strong>What this test does:</strong><br>
+        • Sends admin_login=1 parameter<br>
+        • Uses the exact credentials from database<br>
+        • Should redirect to admin dashboard<br>
+        • No 2FA verification required
+    </div>
+</body>
+</html>

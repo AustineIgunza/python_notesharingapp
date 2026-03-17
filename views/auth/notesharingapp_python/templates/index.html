@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Notes Sharing App{% endblock %}
+
+{% block content %}
+<div class="row align-items-center">
+    <div class="col-md-6">
+        <h1 class="display-4 fw-bold">Welcome to Notes Sharing App</h1>
+        <p class="lead text-muted">Share your notes securely and collaborate with others</p>
+        
+        {% if not request.cookies.get('user_id') %}
+            <div class="d-flex gap-2">
+                <a href="/auth/signin" class="btn btn-primary btn-lg">Sign In</a>
+                <a href="/auth/signup" class="btn btn-outline-primary btn-lg">Create Account</a>
+            </div>
+        {% else %}
+            <div class="d-flex gap-2">
+                <a href="/dashboard" class="btn btn-primary btn-lg">Go to Dashboard</a>
+                <a href="/notes/create" class="btn btn-success btn-lg">Create Note</a>
+            </div>
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center p-5">
+                <h2 class="display-5 mb-3">📝</h2>
+                <h3>Easy Note Taking</h3>
+                <p class="text-muted">Create, edit, and organize your notes with ease</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <h2 class="text-primary">🔐</h2>
+                <h5 class="card-title">Secure & Private</h5>
+                <p class="card-text text-muted">Your notes are protected with encryption and secure authentication</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <h2 class="text-success">⭐</h2>
+                <h5 class="card-title">Organize & Share</h5>
+                <p class="card-text text-muted">Organize your notes with categories and share publicly</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center">
+                <h2 class="text-info">📂</h2>
+                <h5 class="card-title">File Attachments</h5>
+                <p class="card-text text-muted">Attach files to your notes for better organization</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,6 +1,6 @@
 <?php
 require_once 'app/Services/Global/Database.php';
-require_once 'conf.php';
+require_once 'config/conf.php';
 
 $db = new Database($conf);
 

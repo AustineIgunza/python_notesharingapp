@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}{{ note.title }} - Notes Sharing App{% endblock %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col-md-8">
+        <h1>{{ note.title }}</h1>
+        <small class="text-muted">by <strong>{{ note.author.full_name }}</strong> • {{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+    </div>
+    <div class="col-md-4 text-end">
+        {% if request.cookies.get('user_id')|int == note.author_id %}
+            <a href="/notes/{{ note.id }}/edit" class="btn btn-sm btn-primary">Edit</a>
+        {% endif %}
+        <form action="/notes/{{ note.id }}/{% if is_favorite %}unfavorite{% else %}favorite{% endif %}" method="post" style="display:inline;">
+            {% if is_favorite %}
+                <button type="submit" class="btn btn-sm btn-warning">⭐ Unfavorite</button>
+            {% else %}
+                <button type="submit" class="btn btn-sm btn-outline-warning">☆ Add to Favorites</button>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <div class="note-content">
+                    {{ note.content }}
+                </div>
+            </div>
+        </div>
+        
+        {% if files %}
+            <div class="card mt-3">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">Attached Files</h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for file in files %}
+                            <a href="/uploads/documents/{{ file.file_path }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">📄 {{ file.file_name }}</h6>
+                                    <small>{{ (file.file_size / 1024 / 1024) | round(2) }} MB</small>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h6 class="card-title">Note Info</h6>
+                <p class="mb-2">
+                    <strong>Visibility:</strong><br>
+                    {% if note.is_public %}
+                        <span class="badge bg-success">Public</span>
+                    {% else %}
+                        <span class="badge bg-warning">Private</span>
+                    {% endif %}
+                </p>
+                {% if note.category %}
+                    <p class="mb-2">
+                        <strong>Category:</strong><br>
+                        {{ note.category.name }}
+                    </p>
+                {% endif %}
+                <p class="mb-0">
+                    <strong>Author:</strong><br>
+                    {{ note.author.full_name }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

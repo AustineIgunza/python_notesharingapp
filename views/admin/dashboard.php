@@ -1,5 +1,6 @@
 <?php
 // Admin Dashboard - Main Overview
+require_once __DIR__ . '/../../config/conf.php';
 require_once __DIR__ . '/../../app/Middleware/AdminMiddleware.php';
 require_once __DIR__ . '/../../app/Controllers/AdminController.php';
 

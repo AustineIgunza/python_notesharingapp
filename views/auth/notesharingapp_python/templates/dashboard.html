@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Notes Sharing App{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>My Dashboard</h1>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="/notes/create" class="btn btn-success">+ New Note</a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">📝 My Notes</h5>
+                <h2 class="text-primary">{{ total_notes }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">⭐ Favorites</h5>
+                <h2 class="text-success"><a href="/favorites">View</a></h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">🔍 Search</h5>
+                <form action="/search" method="get" class="input-group">
+                    <input type="text" class="form-control" name="q" placeholder="Search notes..." required>
+                    <button class="btn btn-outline-primary" type="submit">Go</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">My Notes</h5>
+            </div>
+            <div class="card-body">
+                {% if notes %}
+                    <div class="list-group">
+                        {% for note in notes %}
+                            <a href="/notes/{{ note.id }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{ note.title }}</h5>
+                                    <small class="text-muted">{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                                </div>
+                                <p class="mb-1 text-muted">{{ note.content[:100] }}...</p>
+                                {% if note.is_public %}
+                                    <span class="badge bg-success">Public</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Private</span>
+                                {% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">You haven't created any notes yet. <a href="/notes/create">Create one now!</a></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

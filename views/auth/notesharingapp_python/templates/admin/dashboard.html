@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Notes Sharing App{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1>🔧 Admin Dashboard</h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">👥 Total Users</h5>
+                <h2>{{ total_users }}</h2>
+                <a href="/admin/users" class="btn btn-sm btn-outline-light mt-2">Manage</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">📝 Total Notes</h5>
+                <h2>{{ total_notes }}</h2>
+                <a href="/admin/notes" class="btn btn-sm btn-outline-light mt-2">Manage</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">⭐ Total Favorites</h5>
+                <h2>{{ total_favorites }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center bg-warning text-dark">
+            <div class="card-body">
+                <h5 class="card-title">📊 Analytics</h5>
+                <a href="/admin/analytics" class="btn btn-sm btn-dark mt-2">View</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0">Recent Notes</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for note in recent_notes[:5] %}
+                        <a href="/notes/{{ note.id }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-0">{{ note.title[:40] }}</h6>
+                                <small class="text-muted">{{ note.created_at.strftime('%Y-%m-%d') }}</small>
+                            </div>
+                            <small class="text-muted">by {{ note.author.full_name }}</small>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h6 class="mb-0">Most Favorited Notes</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for note, count in most_favorited[:5] %}
+                        <a href="/notes/{{ note.id }}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-0">{{ note.title[:40] }}</h6>
+                                <span class="badge bg-primary">{{ count }} ⭐</span>
+                            </div>
+                            <small class="text-muted">by {{ note.author.full_name }}</small>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h6 class="mb-0">Admin Actions</h6>
+            </div>
+            <div class="card-body">
+                <div class="btn-group" role="group">
+                    <a href="/admin/users" class="btn btn-primary">👥 Manage Users</a>
+                    <a href="/admin/notes" class="btn btn-success">📝 Manage Notes</a>
+                    <a href="/admin/analytics" class="btn btn-info">📊 View Analytics</a>
+                    <a href="/auth/logout" class="btn btn-danger">🚪 Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

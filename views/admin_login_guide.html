@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login Instructions</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .step { background: #f8f9fa; border-left: 4px solid #28a745; padding: 15px; margin: 20px 0; }
+        .credentials { background: #e7f3ff; border: 1px solid #b3d9ff; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .important { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .button { background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 5px; }
+        .button:hover { background: #218838; }
+        .screenshot { border: 2px solid #ddd; padding: 10px; margin: 10px 0; background: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <h1>🔐 How to Login as Admin</h1>
+    
+    <div class="credentials">
+        <h3>👤 Your Admin Account:</h3>
+        <strong>Email:</strong> admin12@gmail.com<br>
+        <strong>Password:</strong> admin12<br>
+        <strong>2FA:</strong> Disabled (no verification needed)
+    </div>
+
+    <div class="step">
+        <h3>Step 1: Go to Sign In Page</h3>
+        <p>Navigate to the login page:</p>
+        <a href="auth/signin.php" class="button">Go to Sign In Page</a>
+    </div>
+
+    <div class="step">
+        <h3>Step 2: Switch to Admin Mode</h3>
+        <div class="important">
+            <strong>⚠️ IMPORTANT:</strong> You must select "Admin" mode before logging in!
+        </div>
+        
+        <div class="screenshot">
+            <p><strong>On the signin page, you'll see two options:</strong></p>
+            <p>🔘 <strong>User</strong> (default selected)</p>
+            <p>🔘 <strong>Admin</strong> ← <strong style="color: red;">CLICK THIS!</strong></p>
+            <p>When you click "Admin", the button text will change to "Sign In as Admin"</p>
+        </div>
+    </div>
+
+    <div class="step">
+        <h3>Step 3: Enter Credentials</h3>
+        <p>Enter your admin credentials:</p>
+        <ul>
+            <li><strong>Email:</strong> admin12@gmail.com</li>
+            <li><strong>Password:</strong> admin12</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3>Step 4: Click "Sign In as Admin"</h3>
+        <p>Make sure the button says "Sign In as Admin" (not just "Sign In"), then click it.</p>
+        <p><strong>You will be taken directly to the admin dashboard without 2FA!</strong></p>
+    </div>
+
+    <div class="important">
+        <h4>🎯 Key Points:</h4>
+        <ul>
+            <li><strong>Must select "Admin" mode</strong> - this is the most important step!</li>
+            <li>No 2FA required for this admin account</li>
+            <li>You'll go straight to admin dashboard after login</li>
+            <li>If you forget to select Admin mode, you'll go to regular user dashboard</li>
+        </ul>
+    </div>
+
+    <hr>
+    <p style="text-align: center;">
+        <a href="auth/signin.php" class="button">🚀 Try Admin Login Now</a>
+    </p>
+</body>
+</html>

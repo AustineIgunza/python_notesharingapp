@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Verify 2FA - Notes Sharing App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow-lg">
+            <div class="card-body p-5">
+                <h2 class="card-title text-center mb-4">🔐 Verify Your Identity</h2>
+                <p class="text-center text-muted mb-4">Enter the 6-digit code sent to your email</p>
+                
+                <form method="post" class="needs-validation">
+                    <div class="mb-3">
+                        <label for="verification_code" class="form-label">Verification Code</label>
+                        <input type="text" class="form-control form-control-lg text-center font-monospace" 
+                               id="verification_code" name="verification_code" maxlength="6" pattern="\d{6}" required 
+                               placeholder="000000" style="letter-spacing: 0.5em; font-size: 2em;">
+                        <small class="text-muted">Code expires in 10 minutes</small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 mb-2">Verify</button>
+                </form>
+                
+                <p class="text-center mt-4 mb-0">
+                    <a href="/auth/signin">Back to Sign In</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

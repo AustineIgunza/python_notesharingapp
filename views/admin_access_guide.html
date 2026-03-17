@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Access Guide</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .step { background: #f8f9fa; border-left: 4px solid #007bff; padding: 15px; margin: 20px 0; }
+        .credentials { background: #d1ecf1; border: 1px solid #bee5eb; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .button { background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 5px; }
+        .button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🔐 Admin Panel Access Guide</h1>
+    
+    <div class="step">
+        <h3>Step 1: Sign In to the Application</h3>
+        <p>First, go to the sign-in page:</p>
+        <a href="auth/signin.php" class="button">Go to Sign In Page</a>
+    </div>
+
+    <div class="step">
+        <h3>Step 2: Use Admin Credentials</h3>
+        <p>Use one of these admin accounts:</p>
+        
+        <div class="credentials">
+            <h4>🔑 Admin Account #1 (Primary)</h4>
+            <strong>Email:</strong> austineigunza@gmail.com<br>
+            <strong>Password:</strong> igunza12<br>
+            <strong>Name:</strong> Austin Eigunza
+        </div>
+
+        <div class="credentials">
+            <h4>🔑 Admin Account #2 (Backup)</h4>
+            <strong>Email:</strong> testuser@example.com<br>
+            <strong>Password:</strong> [Use existing password or reset if needed]<br>
+            <strong>Name:</strong> Test User
+        </div>
+    </div>
+
+    <div class="step">
+        <h3>Step 3: Access Admin Panel</h3>
+        <p>Once signed in as an admin user, you'll see admin options in two places:</p>
+        <ul>
+            <li><strong>User Dropdown Menu:</strong> Click your profile icon in top-right, look for "Admin Panel" link</li>
+            <li><strong>Sidebar Navigation:</strong> Look for "Admin Panel" in the left sidebar</li>
+            <li><strong>Direct Access:</strong> Navigate directly to the admin panel</li>
+        </ul>
+        <a href="admin/dashboard.php" class="button">Direct Admin Panel Access</a>
+    </div>
+
+    <div class="warning">
+        <h4>⚠️ Important Notes:</h4>
+        <ul>
+            <li>Only users with <code>is_admin = 1</code> can access the admin panel</li>
+            <li>Regular users won't see admin menu options</li>
+            <li>Admin panel includes user management, note moderation, and analytics</li>
+            <li>Admin access is protected by AdminMiddleware for security</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <h3>Step 4: Admin Panel Features</h3>
+        <p>Once in the admin panel, you can:</p>
+        <ul>
+            <li><strong>Dashboard:</strong> View system statistics and recent activity</li>
+            <li><strong>User Management:</strong> Manage user accounts, suspensions, and permissions</li>
+            <li><strong>Note Moderation:</strong> Review, approve, or remove notes</li>
+            <li><strong>Analytics:</strong> View usage statistics and platform metrics</li>
+            <li><strong>System Settings:</strong> Configure platform settings</li>
+        </ul>
+    </div>
+
+    <hr>
+    <p style="text-align: center;">
+        <a href="../dashboard.php" class="button">← Back to Main Dashboard</a>
+        <a href="auth/signin.php" class="button">Sign In Now</a>
+    </p>
+</body>
+</html>

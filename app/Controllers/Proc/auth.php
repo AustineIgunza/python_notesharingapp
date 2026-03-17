@@ -188,7 +188,34 @@ class auth{
                 // Verify password against hashed value in DB
                 if(password_verify($password, $user['password'])){
                     error_log("DEBUG: Password verification successful", 3, $debug_log);
-                    // Password is correct - generate 2FA code
+                    
+                    // Check if user is admin (skip 2FA for admins)
+                    $admin_emails = ['admin12@gmail.com', 'austineigunza@gmail.com'];
+                    if(in_array($email, $admin_emails)){
+                        
+                        // Start session if not active
+                        if(session_status() !== PHP_SESSION_ACTIVE){
+                            session_start();
+                        }
+                        
+                        // Log admin in directly
+                        $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['user_name'] = $user['full_name'];
+                        $_SESSION['user_email'] = $user['email'];
+                        $_SESSION['is_admin'] = true;
+                        $_SESSION['login_time'] = time();
+                        
+                        // Handle remember me for admin
+                        if($remember_me){
+                            $this->createRememberToken($user['id'], $conf);
+                        }
+                        
+                        // Redirect admin to dashboard
+                        header('Location: ../admin/dashboard.php');
+                        exit();
+                    }
+                    
+                    // Password is correct - generate 2FA code for regular users
                     if(session_status() !== PHP_SESSION_ACTIVE){
                         session_start();
                     }

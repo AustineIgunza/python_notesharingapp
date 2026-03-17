@@ -3,7 +3,7 @@
 session_start();
 
 // Load core config and services needed for signin processing
-require_once '../../conf.php';
+require_once '../../config/conf.php';
 require_once '../../config/Lang/en.php';
 require_once '../../app/Services/Global/Database.php';
 require_once '../../app/Services/Global/fncs.php';
@@ -28,19 +28,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signin'])) {
     
     // Check if admin direct login is requested
     if (isset($_POST['admin_login']) && $_POST['admin_login'] == '1') {
-        error_log("DEBUG: Admin direct login requested", 3, $debug_log);
+        error_log("DEBUG: Admin direct login requested");
         
         $email = $_POST['email'] ?? '';
         $password = $_POST['password'] ?? '';
         
         if (!empty($email) && !empty($password)) {
-            // Verify credentials
-            $stmt = $db->query("SELECT * FROM users WHERE email = ?", [$email]);
-            $user = $stmt->fetch();
+            $user = null;
+            
+            // Try Database class first
+            try {
+                if (!$db->isStubMode()) {
+                    $stmt = $db->query("SELECT * FROM users WHERE email = ?", [$email]);
+                    $user = $stmt->fetch();
+                }
+            } catch (Exception $e) {
+                error_log("Admin login Database class failed: " . $e->getMessage());
+                $user = null;
+            }
+            
+            // Fallback: Direct PDO connection if Database class fails
+            if ($user === null) {
+                try {
+                    $pdo = new PDO("mysql:host=127.0.0.1;dbname=notessharingapp;charset=utf8mb4", "root", "root", [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                    ]);
+                    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+                    $stmt->execute([$email]);
+                    $user = $stmt->fetch();
+                    error_log("Admin login fallback PDO used successfully");
+                } catch (Exception $e) {
+                    error_log("Admin login fallback PDO also failed: " . $e->getMessage());
+                    $ObjFncs->setMsg('errors', ['email_error' => 'Database connection error. Please try again.'], 'danger');
+                }
+            }
             
             if ($user && password_verify($password, $user['password'])) {
-                // Check if user is admin
-                if ($user['is_admin'] == 1) {
+                // Check if user is admin using whitelist approach
+                $admin_emails = ['admin12@gmail.com', 'austineigunza@gmail.com'];
+                
+                if (in_array($email, $admin_emails)) {
                     // Login directly without 2FA
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['user_name'] = $user['full_name'];
@@ -48,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signin'])) {
                     $_SESSION['is_admin'] = true;
                     $_SESSION['login_time'] = time();
                     
-                    error_log("DEBUG: Admin direct login successful for: $email", 3, $debug_log);
+                    error_log("DEBUG: Admin direct login successful for: $email");
                     
                     // Redirect to admin dashboard
                     header('Location: ../admin/dashboard.php');
@@ -643,7 +671,6 @@ $msg = $ObjFncs->getMsg('msg') ?: '';
                                         </button>
                                     </div>
                                 </div>
->>>>>>> 2c46ffe475ab4c91c9d608970852b2e60067f6c6
                             </form>
                             
                             <div class="signup-link">
@@ -728,9 +755,6 @@ $msg = $ObjFncs->getMsg('msg') ?: '';
             }
         });
         
-<<<<<<< HEAD
-
-=======
         // Login Mode Toggle Logic
         function toggleLoginMode() {
             const isUser = document.getElementById('mode_user').checked;
@@ -761,8 +785,8 @@ $msg = $ObjFncs->getMsg('msg') ?: '';
             toggleLoginMode();
             
             // Use admin credentials
-            emailInput.value = 'admin@noteshareacademy.com';
-            passwordInput.value = 'admin123';
+            emailInput.value = 'admin12@gmail.com';
+            passwordInput.value = 'admin12';
             
             // Trigger validation
             emailInput.dispatchEvent(new Event('input'));
@@ -779,7 +803,6 @@ $msg = $ObjFncs->getMsg('msg') ?: '';
                 this.classList.add('text-muted');
             }, 2000);
         });
->>>>>>> 2c46ffe475ab4c91c9d608970852b2e60067f6c6
         
         // Loading state for form submission
         function showLoadingState() {

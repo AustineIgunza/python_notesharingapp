@@ -4,7 +4,7 @@
  */
 
 require_once 'app/Services/Global/Database.php';
-require_once 'conf.php';
+require_once 'config/conf.php';
 
 echo "=================================\n";
 echo "Creating Admin Tables (MySQL)\n";

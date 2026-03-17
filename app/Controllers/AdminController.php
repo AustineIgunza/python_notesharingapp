@@ -18,11 +18,24 @@ class AdminController {
         $project_root = dirname(dirname(__DIR__));
         
         // Include required files
-        require_once $project_root . '/conf.php';
+        require_once $project_root . '/config/conf.php';
         require_once $project_root . '/app/Services/Global/Database.php';
         require_once $project_root . '/app/Services/Global/fncs.php';
         
+        // Get configuration - check if $conf is available, if not create fallback
         global $conf;
+        if (empty($conf)) {
+            // Fallback configuration matching conf.php structure
+            $conf = [
+                'db_type' => 'mysql',
+                'db_host' => '127.0.0.1',
+                'db_port' => '3306',
+                'db_user' => 'root',
+                'db_pass' => 'root',
+                'db_name' => 'notessharingapp'
+            ];
+        }
+        
         $this->db = new Database($conf);
         $this->ObjFncs = new fncs();
     }
