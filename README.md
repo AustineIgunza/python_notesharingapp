@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Note Sharing Application 📚
 
 A secure web application for sharing notes with advanced authentication features including 2FA (Two-Factor Authentication), built with PHP and MySQL.
@@ -301,3 +302,6 @@ For issues or questions:
 **Architecture**: PHP MVC with Bootstrap Frontend and File Upload System
 
 
+=======
+# NOTESHARINGAPP_PYTHON
+>>>>>>> 3f2abaa8c913659aef23ce705075ed3a76dff18d
